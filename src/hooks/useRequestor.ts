@@ -35,7 +35,7 @@ function useRequestor(wallet: Wallet) {
     // Sign the encoded access request
     const signedAccessRequest = await wallet.signMessage(encodedAccessRequest);
 
-    return signedAccessRequest;
+    return `${encodedAccessRequest}.${signedAccessRequest}`;
   };
 
   return [requestAccess];
