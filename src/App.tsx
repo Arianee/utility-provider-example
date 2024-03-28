@@ -1,14 +1,15 @@
 import "./App.css";
 
-import React, { useState } from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
-import { ethers } from "ethers";
+import {ethers} from "ethers";
 
 import Button from "./components/Button";
 import Input from "./components/Input";
 import Separator from "./components/Separator";
-import { DAPP_QUERY_PARAM, DAPP_URL, PRIVATE_KEY } from "./constants";
-import { AccessRequest, useRequestor } from "./hooks/useRequestor";
+import {DAPP_QUERY_PARAM, DAPP_URL, PRIVATE_KEY} from "./constants";
+import {AccessRequest, useRequestor} from "./hooks/useRequestor";
+import DisplayNft from "./components/DisplayNft";
 
 const Title = styled.h1`
   font-size: 1.5em;
@@ -59,6 +60,10 @@ function App() {
     promptUserBeforeRedirect(accessRequest);
   };
 
+  const location = window.location;
+  const queryParams = new URLSearchParams(location.search);
+  const transferPermit = queryParams.get('transferPermit');
+
   return (
     <div className="App">
       <header className="App-header">
@@ -77,6 +82,8 @@ function App() {
           <Input type="text" value={serialNumber} onChange={e => setSerialNumber(e.target.value)} placeholder="Serial number" />
           <Button onClick={onBtnReqAccessWithFilterClick} $theme="pink">Request access to a specific NFT</Button>
         </ActionPanel>
+        <Separator />
+        {transferPermit && <DisplayNft wallet={Wallet} transferPermit={transferPermit} />}
       </header>
     </div>
   );
