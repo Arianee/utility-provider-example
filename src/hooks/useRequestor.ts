@@ -25,8 +25,12 @@ interface AccessRequestAat extends AccessRequestBase {
 
 type AccessRequest = AccessRequestSst | AccessRequestAat;
 
-function useRequestor(wallet: Wallet) {
+function useRequestor(wallet: Wallet|null) {
   const requestAccess = async (accessRequest: AccessRequest) => {
+    if(!wallet) {
+      throw new Error("Wallet is not defined");
+    }
+    console.log(accessRequest);
     // Encode the access request with base64
     const encodedAccessRequest = Buffer.from(
       JSON.stringify(accessRequest)

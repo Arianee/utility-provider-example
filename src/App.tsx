@@ -7,7 +7,7 @@ import {ethers} from "ethers";
 import Button from "./components/Button";
 import Input from "./components/Input";
 import Separator from "./components/Separator";
-import {DAPP_QUERY_PARAM, DAPP_URL, PRIVATE_KEY} from "./constants";
+import {DAPP_QUERY_PARAM, DAPP_URL} from "./constants";
 import {AccessRequest, useRequestor} from "./hooks/useRequestor";
 import DisplayNft from "./components/DisplayNft";
 
@@ -24,18 +24,44 @@ const ActionPanel = styled.div`
   justify-content: center;
 `;
 
-const Wallet = new ethers.Wallet(PRIVATE_KEY);
+//let Wallet:ethers.Wallet|null = null;
 
 function App() {
   const [serialNumber, setSerialNumber] = useState<string>("");
-
-  const [requestAccess] = useRequestor(Wallet);
-  const baseAccessRequest: AccessRequest = {
-    requesterAddress: Wallet.address,
-    issuerAddress: ethers.ZeroAddress,
+  const [privateKey, setPrivateKey] = useState<string>("");
+  const [Wallet, setWallet] = useState<ethers.Wallet|null>(null);
+  const [baseAccessRequest, setBaseAccessRequest] = useState<AccessRequest>({
+    requesterAddress: "",
+    issuerAddress: "0xc08178c2BA25E94A74Bc1aA8d601B32Aa9A58f46",
     type: "sst",
     label: "repair",
     redirectTo: "http://localhost:3000",
+  });
+  const [requestAccess] = useRequestor(Wallet);
+
+  const configWallet = (privateKey: string) => {
+    const wallet = new ethers.Wallet(privateKey);
+    baseAccessRequest.requesterAddress = wallet.address;
+    setBaseAccessRequest(baseAccessRequest);
+    setWallet(wallet);
+    return wallet;
+  }
+
+  const privateKeyStored = localStorage.getItem('privatekey');
+  if (privateKeyStored && !Wallet) {
+    setPrivateKey(privateKeyStored);
+    configWallet(privateKeyStored);
+  }
+
+
+  const onBtnConnectWalletClick = async () => {
+    if (!privateKey || privateKey.length !== 66) {
+      window.alert("Please enter a valid private key");
+      return;
+    }
+    localStorage.setItem('privatekey', privateKey);
+    const wallet = configWallet(privateKey);
+    console.info(`[onBtnConnectWalletClick] ${wallet.address}`);
   };
 
   const promptUserBeforeRedirect = (signedAccessRequest: string) => {
@@ -45,12 +71,21 @@ function App() {
   }
 
   const onBtnReqAccessNoFilterClick = async () => {
+    if(!Wallet) {
+        window.alert("Please connect your wallet first");
+        return;
+    }
+
     const accessRequest = await requestAccess({ ...baseAccessRequest });
     console.info(`[onBtnReqAccessNoFilterClick] ${DAPP_URL}?${DAPP_QUERY_PARAM}=${accessRequest}`);
     promptUserBeforeRedirect(accessRequest);
   };
 
   const onBtnReqAccessWithFilterClick = async () => {
+    if(!Wallet) {
+      window.alert("Please connect your wallet first");
+      return;
+    }
     if (!serialNumber || serialNumber.length === 0) {
       window.alert("Please enter a serial number");
       return;
@@ -69,10 +104,10 @@ function App() {
       <header className="App-header">
         <Title>Awesome Utility Provider</Title>
         <ActionPanel>
-          <p>Connect your wallet</p>
-          <Button $theme="green" disabled>Your wallet: {Wallet.address}</Button>
+          <p>Enter the private key that will sign the brand connect request</p>
+          <Input type="password" value={privateKey} onChange={e => setPrivateKey(e.target.value)} placeholder="PrivateKey" />
+          {Wallet ? <Button $theme="green" disabled>Your wallet: {Wallet.address}</Button> : <Button $theme="green" onClick={onBtnConnectWalletClick}>Connect Wallet</Button> }
         </ActionPanel>
-
         <ActionPanel>
           <p>Make a request</p>
           <Button onClick={onBtnReqAccessNoFilterClick} $theme="blue">Request access to one of your NFT</Button>

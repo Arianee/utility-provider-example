@@ -26,6 +26,23 @@ const NftDisplay = styled.div`
 const NftDisplayTitle = styled.h2`
   font-size: 36px;
 `
+const NftImage = styled.img`
+  width: 100px;
+`
+const Loader = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 100px;
+  transform: translate(-50%, -50%);
+  background: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white; 
+  font-size: 25px;
+`
 
 function DisplayNft({wallet, transferPermit}:{wallet:any, transferPermit:string}){
 
@@ -33,6 +50,7 @@ function DisplayNft({wallet, transferPermit}:{wallet:any, transferPermit:string}
       SmartAssetInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>
   >()
   const [receiverAddress, setreceiverAddress] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
 
   const core = Core.fromWallet(wallet as any);
@@ -40,16 +58,21 @@ function DisplayNft({wallet, transferPermit}:{wallet:any, transferPermit:string}
 
   function onBtnReqTransferNft(){
     try{
+      setIsLoading(true);
+
       serviceProvider.transferSmartAsset({sst:transferPermit, to:receiverAddress})
           .then(tx=>{
             console.info(tx);
             tx.wait().then(()=>{
+              setIsLoading(false);
+
               alert('Transfer success!')
             })
           })
     }
     catch (e) {
       console.error(e)
+      setIsLoading(false);
       alert('Transfer failed!')
     }
   }
@@ -62,8 +85,8 @@ function DisplayNft({wallet, transferPermit}:{wallet:any, transferPermit:string}
 
 
   return (
-
         <NftDisplay>
+          {isLoading && <Loader>Transfer in progress...</Loader>}
           <NftDisplayTitle>Permit Transfer Detected</NftDisplayTitle>
           {nft && <p>{nft.data.content.name}</p>}
           {nft && <p>{nft.data.content.description}</p>}
