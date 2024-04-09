@@ -29,14 +29,16 @@ const ActionPanel = styled.div`
 function App() {
   const [serialNumber, setSerialNumber] = useState<string>("");
   const [privateKey, setPrivateKey] = useState<string>("");
+  const [issuerAddress, setIssuerAddress] = useState<string>("0x305051e9a023fe881EE21cA43fd90c460B427Caa");
+  const [brandAppUrl, setBrandAppUrl] = useState<string>("https://app.arianee.com");
   const [Wallet, setWallet] = useState<ethers.Wallet|null>(null);
   const [baseAccessRequest, setBaseAccessRequest] = useState<AccessRequest>({
     requesterAddress: "",
-    issuerAddress: "0xc08178c2BA25E94A74Bc1aA8d601B32Aa9A58f46",
+    issuerAddress: "",
     type: "sst",
-    label: "repair",
-    redirectTo: "http://localhost:3000",
-  });
+    label: "resell",
+    redirectTo: window.location.href
+  })
   const [requestAccess] = useRequestor(Wallet);
 
   const configWallet = (privateKey: string) => {
@@ -76,7 +78,7 @@ function App() {
         return;
     }
 
-    const accessRequest = await requestAccess({ ...baseAccessRequest });
+    const accessRequest = await requestAccess({ ...baseAccessRequest, issuerAddress, redirectTo:brandAppUrl });
     console.info(`[onBtnReqAccessNoFilterClick] ${DAPP_URL}?${DAPP_QUERY_PARAM}=${accessRequest}`);
     promptUserBeforeRedirect(accessRequest);
   };
@@ -90,7 +92,7 @@ function App() {
       window.alert("Please enter a serial number");
       return;
     }
-    const accessRequest = await requestAccess({ ...baseAccessRequest, filter: { serialNumber } });
+    const accessRequest = await requestAccess({ ...baseAccessRequest, filter: { serialNumber }, issuerAddress, redirectTo:brandAppUrl});
     console.info(`[onBtnReqAccessWithFilterClick] ${DAPP_URL}?${DAPP_QUERY_PARAM}=${accessRequest}`);
     promptUserBeforeRedirect(accessRequest);
   };
@@ -104,9 +106,17 @@ function App() {
       <header className="App-header">
         <Title>Awesome Utility Provider</Title>
         <ActionPanel>
-          <p>Enter the private key that will sign the brand connect request</p>
+          <p>1/ Enter the private key that will sign the brand connect request</p>
           <Input type="password" value={privateKey} onChange={e => setPrivateKey(e.target.value)} placeholder="PrivateKey" />
           {Wallet ? <Button $theme="green" disabled>Your wallet: {Wallet.address}</Button> : <Button $theme="green" onClick={onBtnConnectWalletClick}>Connect Wallet</Button> }
+        </ActionPanel>
+        <ActionPanel>
+          <p>2/ Enter the address of the brand that issued the DPP you want to request</p>
+          <Input type="text" value={issuerAddress} onChange={e => setIssuerAddress(e.target.value)} placeholder="PrivateKey" />
+        </ActionPanel>
+        <ActionPanel>
+          <p>3/ Enter the URL of the brand app</p>
+          <Input type="text" value={brandAppUrl} onChange={e => setBrandAppUrl(e.target.value)} placeholder="PrivateKey" />
         </ActionPanel>
         <ActionPanel>
           <p>Make a request</p>

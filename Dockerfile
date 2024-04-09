@@ -1,4 +1,4 @@
-FROM nginx:1.24.0-alpine
+FROM --platform=linux/amd64 nginx:1.24.0-alpine
 
 COPY ./build /usr/share/nginx/html/
 COPY ./nginx/nginx.conf /etc/nginx/nginx.conf
