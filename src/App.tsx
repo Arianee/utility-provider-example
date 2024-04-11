@@ -68,7 +68,7 @@ function App() {
 
   const promptUserBeforeRedirect = (signedAccessRequest: string) => {
     if (window.confirm("You are about to be redirected to app.arianee.com.\nDo you want to proceed?")) {
-      window.location.href = `${DAPP_URL}?${DAPP_QUERY_PARAM}=${signedAccessRequest}`;
+      window.location.href = `${brandAppUrl}?${DAPP_QUERY_PARAM}=${signedAccessRequest}`;
     }
   }
 
@@ -78,8 +78,8 @@ function App() {
         return;
     }
 
-    const accessRequest = await requestAccess({ ...baseAccessRequest, issuerAddress, redirectTo:brandAppUrl });
-    console.info(`[onBtnReqAccessNoFilterClick] ${DAPP_URL}?${DAPP_QUERY_PARAM}=${accessRequest}`);
+    const accessRequest = await requestAccess({ ...baseAccessRequest, issuerAddress });
+    console.info(`[onBtnReqAccessNoFilterClick] ${brandAppUrl}?${DAPP_QUERY_PARAM}=${accessRequest}`);
     promptUserBeforeRedirect(accessRequest);
   };
 
@@ -92,8 +92,8 @@ function App() {
       window.alert("Please enter a serial number");
       return;
     }
-    const accessRequest = await requestAccess({ ...baseAccessRequest, filter: { serialNumber }, issuerAddress, redirectTo:brandAppUrl});
-    console.info(`[onBtnReqAccessWithFilterClick] ${DAPP_URL}?${DAPP_QUERY_PARAM}=${accessRequest}`);
+    const accessRequest = await requestAccess({ ...baseAccessRequest, filter: { serialNumber }, issuerAddress});
+    console.info(`[onBtnReqAccessWithFilterClick] ${brandAppUrl}?${DAPP_QUERY_PARAM}=${accessRequest}`);
     promptUserBeforeRedirect(accessRequest);
   };
 
