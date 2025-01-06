@@ -40,25 +40,106 @@
     max-height: 160px;
     overflow-y: auto;
     overflow-x: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
     font-size: 0.875rem;
     box-sizing: border-box;
     width: 100%;
 }
 
-/* Scrollbar Styling */
-.description-content::-webkit-scrollbar {
+/* History Section */
+.history-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 2rem 0 1rem;
+}
+
+.list-section {
+    max-height: 180px; /* Height pour approximativement 2 éléments + un peu du 3ème pour montrer qu'il y a un scroll */
+    overflow-y: auto;
+    overflow-x: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.25rem;
+}
+
+.list-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item-logo {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    margin-right: 1rem;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f3f4f6;
+}
+
+.list-item-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.list-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.list-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.list-item-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.list-item-date {
+    font-size: 0.875rem;
+    color: #6b7280;
+    white-space: nowrap;
+    margin-left: 1rem;
+}
+
+.list-item-description {
+    font-size: 0.875rem;
+    color: #374151;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Scrollbar Styling - s'applique maintenant à description et list section */
+.description-content::-webkit-scrollbar,
+.list-section::-webkit-scrollbar {
     width: 8px;
 }
 
-.description-content::-webkit-scrollbar-track {
+.description-content::-webkit-scrollbar-track,
+.list-section::-webkit-scrollbar-track {
     background: #f1f1f1;
 }
 
-.description-content::-webkit-scrollbar-thumb {
+.description-content::-webkit-scrollbar-thumb,
+.list-section::-webkit-scrollbar-thumb {
     background: #888;
     border-radius: 4px;
 }
 
-.description-content::-webkit-scrollbar-thumb:hover {
+.description-content::-webkit-scrollbar-thumb:hover,
+.list-section::-webkit-scrollbar-thumb:hover {
     background: #555;
 }

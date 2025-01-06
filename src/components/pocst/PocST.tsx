@@ -1,12 +1,14 @@
 import "./PocST.css"
-import {SmartAssetInstance, Wallet} from "@arianee/wallet";
+import {IdentityInstance, SmartAssetInstance, Wallet} from "@arianee/wallet";
 import {useState} from "react";
-import {ChainType} from "@arianee/common-types";
+import {BrandIdentity, ChainType} from "@arianee/common-types";
 import {useParams} from "react-router-dom";
 
 function PocST() {
   const { arianeeParams } = useParams();
   const [nft, setNft] = useState<SmartAssetInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>|undefined>();
+  const [issuerIdentity, setIssuerIdentity] = useState<IdentityInstance<BrandIdentity>|undefined>();
+  const [identityLogo, setIdentityLogo] = useState<string|undefined>();
   const wallet = new Wallet();
 
   if(!nft){
@@ -19,12 +21,36 @@ function PocST() {
       wallet.smartAsset.get(network, {id,passphrase})
           .then((nft)=>{
             setNft(nft);
+            wallet.identity.get(nft.data.issuer).then
+            ((issuerIdentity)=>{
+              setIssuerIdentity(issuerIdentity);
+              extractAndSetIdentityLogo(issuerIdentity)
+            });
           })
     }
     catch (e) {
       // Handle error if needed
     }
   }
+
+
+  const extractAndSetIdentityLogo = (identity:IdentityInstance<BrandIdentity>)=>{
+    const logo = identity?.data.content.pictures?.find(picture=>picture.type==="brandLogoSquare")
+    if(logo)
+    setIdentityLogo(logo.url);
+  }
+  const formatDate = (timestamp: number) => {
+    const date = new Date(timestamp*1000);
+    return date.toLocaleString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).replace(',', '');
+  };
 
   return (
       <div className="passport-container">
@@ -47,6 +73,25 @@ function PocST() {
                 <p>{nft.data.content.description}</p>
             </div>
         </div>}
+
+        {/* List Section */}
+        {nft && <h2 className="history-title">History</h2>}
+        <div className="list-section">
+          {nft && nft.arianeeEvents.map((item, index) => (
+              <div key={index} className="list-item">
+                {identityLogo && <div className="list-item-logo">
+                  <img src={identityLogo} />
+                </div>}
+                <div className="list-item-content">
+                  <div className="list-item-header">
+                    <h3 className="list-item-title">{item.content.title}</h3>
+                    <span className="list-item-date">{formatDate(item.timestamp)}</span>
+                  </div>
+                  <p className="list-item-description">{item.content.description}</p>
+                </div>
+              </div>
+          ))}
+        </div>
       </div>
   );
 }
