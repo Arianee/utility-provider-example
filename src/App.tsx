@@ -9,7 +9,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Brandconnect />} />
-          <Route path="/pocst" element={<PocST />} />
+          <Route path="/pocst/:arianeeParams" element={<PocST />} />
         </Routes>
       </BrowserRouter>
   );
