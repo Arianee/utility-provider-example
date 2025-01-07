@@ -1,8 +1,9 @@
 import "./PocST.css"
 import {IdentityInstance, SmartAssetInstance, Wallet} from "@arianee/wallet";
-import {useState} from "react";
+import {useCallback, useState} from "react";
 import {BrandIdentity, ChainType} from "@arianee/common-types";
 import {useParams, useNavigate} from "react-router-dom";
+import {getSmartAssetWithCache} from "../../services/SmartAssetCache";
 
 function PocST() {
   const { arianeeParams } = useParams();
@@ -12,25 +13,35 @@ function PocST() {
   const [identityLogo, setIdentityLogo] = useState<string|undefined>();
   const wallet = new Wallet();
 
-  if(!nft){
-    try{
-      if(!arianeeParams){
+  const extractAndSetIdentityLogo = useCallback((identity: IdentityInstance<BrandIdentity>): void => {
+    const logo = identity?.data.content.pictures?.find(
+        (picture) => picture.type === "brandLogoSquare"
+    );
+    if (logo) {
+      setIdentityLogo(logo.url);
+    }
+  }, []);
+
+  if (!nft) {
+    try {
+      if (!arianeeParams) {
         throw new Error("no arianeeParams provided")
       }
 
-      const [id,passphrase,network]= arianeeParams.split(",")
-      wallet.smartAsset.get(network, {id,passphrase})
-          .then((nft)=>{
-            setNft(nft);
-            wallet.identity.get(nft.data.issuer).then
-            ((issuerIdentity)=>{
-              setIssuerIdentity(issuerIdentity);
-              extractAndSetIdentityLogo(issuerIdentity)
+      const [id, passphrase, network] = arianeeParams.split(",");
+      getSmartAssetWithCache(wallet, network, { id, passphrase })
+          .then((nftData) => {
+            setNft(nftData);
+            wallet.identity.get(nftData.data.issuer).then((identity) => {
+              setIssuerIdentity(identity);
+              extractAndSetIdentityLogo(identity);
             });
           })
-    }
-    catch (e) {
-      // Handle error if needed
+          .catch((error: Error) => {
+            console.error('Error fetching NFT:', error);
+          });
+    } catch (error) {
+      console.error('Error processing parameters:', error);
     }
   }
 
@@ -39,12 +50,7 @@ function PocST() {
       navigate(`/pocSt/form/${arianeeParams}`);
     }
   };
-
-  const extractAndSetIdentityLogo = (identity:IdentityInstance<BrandIdentity>)=>{
-    const logo = identity?.data.content.pictures?.find(picture=>picture.type==="brandLogoSquare")
-    if(logo)
-      setIdentityLogo(logo.url);
-  }
+  
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp*1000);
     return date.toLocaleString('en-GB', {
