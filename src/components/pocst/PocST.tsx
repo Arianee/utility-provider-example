@@ -2,10 +2,11 @@ import "./PocST.css"
 import {IdentityInstance, SmartAssetInstance, Wallet} from "@arianee/wallet";
 import {useState} from "react";
 import {BrandIdentity, ChainType} from "@arianee/common-types";
-import {useParams} from "react-router-dom";
+import {useParams, useNavigate} from "react-router-dom";
 
 function PocST() {
   const { arianeeParams } = useParams();
+  const navigate = useNavigate();
   const [nft, setNft] = useState<SmartAssetInstance<ChainType, 'WAIT_TRANSACTION_RECEIPT'>|undefined>();
   const [issuerIdentity, setIssuerIdentity] = useState<IdentityInstance<BrandIdentity>|undefined>();
   const [identityLogo, setIdentityLogo] = useState<string|undefined>();
@@ -33,11 +34,16 @@ function PocST() {
     }
   }
 
+  const handleAddEvent = () => {
+    if (arianeeParams) {
+      navigate(`/pocSt/form/${arianeeParams}`);
+    }
+  };
 
   const extractAndSetIdentityLogo = (identity:IdentityInstance<BrandIdentity>)=>{
     const logo = identity?.data.content.pictures?.find(picture=>picture.type==="brandLogoSquare")
     if(logo)
-    setIdentityLogo(logo.url);
+      setIdentityLogo(logo.url);
   }
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp*1000);
@@ -80,7 +86,7 @@ function PocST() {
           {nft && nft.arianeeEvents.map((item, index) => (
               <div key={index} className="list-item">
                 {identityLogo && <div className="list-item-logo">
-                  <img src={identityLogo} />
+                    <img src={identityLogo} />
                 </div>}
                 <div className="list-item-content">
                   <div className="list-item-header">
@@ -92,6 +98,14 @@ function PocST() {
               </div>
           ))}
         </div>
+
+        {/* Add Event Button */}
+        {nft &&<button
+            onClick={handleAddEvent}
+            className="add-event-button"
+        >
+          Add an event
+        </button>}
       </div>
   );
 }

@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@arianee/arianee-access-token": "^1.45.0",
+    "@arianee/arianee-api-client": "^1.45.0",
     "@arianee/core": "^1.45.0",
     "@arianee/service-provider": "^1.45.0",
     "@arianee/wallet": "^1.45.0",
