@@ -96,3 +96,60 @@ button:disabled {
     font-size: 14px;
     word-break: break-word;
 }
+
+/* Add these styles to your PocSTForm.css */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.modal-content h3 {
+    margin: 0 0 16px 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.modal-content p {
+    margin: 0 0 24px 0;
+    color: #666;
+    font-size: 16px;
+}
+
+.modal-button {
+    width: 100%;
+    padding: 16px;
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.modal-button:hover {
+    background-color: #0056b3;
+}
+
+.modal-button:active {
+    transform: translateY(1px);
+}

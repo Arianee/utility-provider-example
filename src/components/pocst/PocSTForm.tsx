@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import './PocSTForm.css';
-import {useParams, useNavigate} from "react-router-dom";
-import {ArianeeApiClient} from "@arianee/arianee-api-client";
+import { useParams, useNavigate } from "react-router-dom";
+import { ArianeeApiClient } from "@arianee/arianee-api-client";
 import Core from "@arianee/core";
-import {ArianeeAccessToken} from "@arianee/arianee-access-token";
+import { ArianeeAccessToken } from "@arianee/arianee-access-token";
 
 interface FormData {
   title: string;
@@ -19,6 +19,7 @@ const POCSTForm: React.FC = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleBack = () => {
     if (arianeeParams) {
@@ -35,7 +36,7 @@ const POCSTForm: React.FC = () => {
   };
 
   const arianeeApiClient = new ArianeeApiClient();
-  const getNmpUrl = async ():Promise<string|undefined>=> {
+  const getNmpUrl = async (): Promise<string|undefined> => {
     if (!arianeeParams) {
       throw new Error("no arianeeParams provided")
     }
@@ -76,7 +77,11 @@ const POCSTForm: React.FC = () => {
         body: JSON.stringify([
           {
             certificateId: parseInt(id),
-            content:{"$schema":"https://cert.arianee.org/version1/ArianeeEvent-i18n.json","title":formData.title,"description":formData.description}
+            content: {
+              "$schema": "https://cert.arianee.org/version1/ArianeeEvent-i18n.json",
+              "title": formData.title,
+              "description": formData.description
+            }
           }
         ])
       });
@@ -85,9 +90,10 @@ const POCSTForm: React.FC = () => {
         throw new Error('Failed to submit form');
       }
 
-      // Reset form after successful submission
+      // Reset form and show success modal
       setFormData({ title: '', description: '' });
-      // You might want to add success feedback here
+      setShowSuccessModal(true);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -96,46 +102,60 @@ const POCSTForm: React.FC = () => {
   };
 
   return (
-      <div>
-        <div className="header-container">
-          <button onClick={handleBack} className="back-button">
-            ‹
-          </button>
-          <h2 className="form-title">Create a new event</h2>
+      <>
+        <div>
+          <div className="header-container">
+            <button onClick={handleBack} className="back-button">
+              ‹
+            </button>
+            <h2 className="form-title">Create a new event</h2>
+          </div>
+          <form onSubmit={handleSubmit} className="simple-form">
+            <div className="form-group">
+              <label htmlFor="title">Title</label>
+              <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                  disabled={isLoading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="description">Description</label>
+              <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  required
+                  disabled={isLoading}
+              />
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+
+            <button type="submit" disabled={isLoading}>
+              {isLoading ? 'Submitting...' : 'Submit'}
+            </button>
+          </form>
         </div>
-        <form onSubmit={handleSubmit} className="simple-form">
-          <div className="form-group">
-            <label htmlFor="title">Title</label>
-            <input
-                type="text"
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                required
-                disabled={isLoading}
-            />
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-                disabled={isLoading}
-            />
-          </div>
-
-          {error && <div className="error-message">{error}</div>}
-
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Submitting...' : 'Submit'}
-          </button>
-        </form>
-      </div>
+        {showSuccessModal && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <h3>Success!</h3>
+                <p>Your event will be displayed soon</p>
+                <button onClick={handleBack} className="modal-button">
+                  Back to certificate
+                </button>
+              </div>
+            </div>
+        )}
+      </>
   );
 };
 
