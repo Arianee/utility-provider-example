@@ -12,6 +12,8 @@ function PocST() {
   const [issuerIdentity, setIssuerIdentity] = useState<IdentityInstance<BrandIdentity>|undefined>();
   const [identityLogo, setIdentityLogo] = useState<string|undefined>();
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
   const wallet = new Wallet();
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef<number>(0);
@@ -19,10 +21,17 @@ function PocST() {
 
   const loadData = useCallback(async () => {
     if (!arianeeParams) {
-      throw new Error("no arianeeParams provided");
+      setError("Certificate information is missing. Please make sure you have the correct URL.");
+      return;
     }
 
-    const [id, passphrase, network] = arianeeParams.split(",");
+    const params = arianeeParams.split(",");
+    if (params.length !== 3) {
+      setError("Invalid certificate information. Please make sure you have the correct URL.");
+      return;
+    }
+
+    const [id, passphrase, network] = params;
     try {
       const nftData = await getSmartAssetWithCache(wallet, network, { id, passphrase });
       setNft(nftData);
@@ -30,6 +39,7 @@ function PocST() {
       setIssuerIdentity(identity);
       extractAndSetIdentityLogo(identity);
     } catch (error) {
+      setError("Unable to load certificate. Please make sure you have the correct URL.");
       console.error('Error fetching NFT:', error);
     }
   }, [arianeeParams, wallet]);
@@ -105,6 +115,18 @@ function PocST() {
       hour12: false
     }).replace(',', '');
   };
+
+  if (error) {
+    return (
+        <div className="error-container">
+          <div className="error-content">
+            <div className="error-icon">!</div>
+            <h2 className="error-title">Unable to Load Certificate</h2>
+            <p className="error-message">{error}</p>
+          </div>
+        </div>
+    );
+  }
 
   return (
       <div className="passport-container" ref={containerRef}>
